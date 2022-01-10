@@ -3,13 +3,47 @@
 
 #include <iostream>
 
+#define MAX_LINE_LENGTH 1000
+#define MAX_PRODUCT_NAME 256
+
 int main()
 {
     printf("Scan a barcode:\n");
     char barcode[13];
     int result = scanf_s("%s", barcode, (int)sizeof(barcode));
     barcode[sizeof(barcode) - 1] = '\0';
-    printf(barcode);
+
+    FILE* csvFile;
+    char line[MAX_LINE_LENGTH];
+
+    fopen_s(&csvFile, "products.csv", "r");
+    if (csvFile == NULL)
+    {
+        return 1;
+    }
+    
+    char firstToken[MAX_PRODUCT_NAME];
+    while (fgets(line, MAX_LINE_LENGTH, csvFile)) 
+    {
+        //printf(line);
+        char* namePtr = &line[0];
+        int counter = 0;
+        int result = strncmp(line, barcode, sizeof(barcode) - 1); // TODO(David): Need to set size as a variable, so I don't compute it over and over.
+        while (!result && counter < (sizeof(barcode) - 1))
+        {
+            firstToken[counter++] = namePtr[0];
+            ++namePtr;
+        }
+        firstToken[counter] = '\0';
+        printf("%s\n", firstToken);
+
+        if (!result)
+        {
+            break;
+        }
+    }
+
+    fclose(csvFile);
 }
     
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
