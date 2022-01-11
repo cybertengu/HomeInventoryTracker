@@ -2,28 +2,29 @@
 //
 
 #include <iostream>
+#include <fstream>
 
 #define MAX_LINE_LENGTH 1000
 #define MAX_PRODUCT_NAME 256
 
 int main()
 {
-    printf("Scan a barcode:\n");
+    printf("Scan a barcode (for testing, use 048500001745):\n");
     char barcode[13];
     int result = scanf_s("%s", barcode, (int)sizeof(barcode));
     barcode[sizeof(barcode) - 1] = '\0';
-
+    
     FILE* csvFile;
     char line[MAX_LINE_LENGTH];
-
-    fopen_s(&csvFile, "products.csv", "r");
-    if (csvFile == NULL)
+    
+    std::ifstream ifs("products.csv", std::ifstream::in);
+    if(!ifs.good())
     {
         return 1;
     }
     
     char firstToken[MAX_PRODUCT_NAME];
-    while (fgets(line, MAX_LINE_LENGTH, csvFile)) 
+    while (ifs.getline(line, MAX_LINE_LENGTH)) 
     {
         //printf(line);
         char* namePtr = &line[0];
@@ -35,17 +36,20 @@ int main()
             ++namePtr;
         }
         firstToken[counter] = '\0';
-        printf("%s\n", firstToken);
-
+        //printf("%s\n", firstToken);
+        
         if (!result)
         {
+            printf("Found entry: %s", line);
             break;
         }
     }
-
-    fclose(csvFile);
-}
     
+    ifs.close();
+    
+    return 0;
+}
+
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu
 
