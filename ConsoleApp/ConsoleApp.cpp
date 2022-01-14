@@ -13,18 +13,18 @@ int main()
     char barcode[13];
     int result = scanf_s("%s", barcode, (int)sizeof(barcode));
     barcode[sizeof(barcode) - 1] = '\0';
-    
+
     FILE* csvFile;
     char line[MAX_LINE_LENGTH];
-    
+
     std::ifstream ifs("products.csv", std::ifstream::in);
-    if(!ifs.good())
+    if (!ifs.good())
     {
         return 1;
     }
-    
+
     char firstToken[MAX_PRODUCT_NAME];
-    while (ifs.getline(line, MAX_LINE_LENGTH)) 
+    while (ifs.getline(line, MAX_LINE_LENGTH))
     {
         //printf(line);
         char* namePtr = &line[0];
@@ -37,16 +37,52 @@ int main()
         }
         firstToken[counter] = '\0';
         //printf("%s\n", firstToken);
-        
+
         if (!result)
         {
             printf("Found entry: %s", line);
             break;
         }
     }
-    
+
     ifs.close();
-    
+
+    char productName[MAX_LINE_LENGTH];
+    char amount[MAX_LINE_LENGTH];
+    bool lookingForProductName = 1;
+    bool lookingForAmount = 0;
+    char* namePtr = &line[sizeof(barcode)];
+    int counter = 0;
+
+    while (namePtr[0] != '\0')
+    {
+        if (namePtr[0] == ',')
+        {
+            if (lookingForProductName)
+            {
+                productName[counter] = '\0';
+                lookingForAmount = 1;
+                lookingForProductName = 0;
+            }
+            counter = 0;
+            ++namePtr;
+            continue;
+        }
+
+        if (lookingForProductName)
+        {
+            productName[counter++] = namePtr[0];
+        }
+        else if (lookingForAmount)
+        {
+            amount[counter++] = namePtr[0];
+        }
+        ++namePtr;
+    }
+    amount[counter] = '\0';
+
+    printf("\n1: %s 2: %s 3: %s", barcode, productName, amount);
+
     return 0;
 }
 
